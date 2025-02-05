@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 01:19:48 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/05 01:21:39 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/05 01:38:31 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,14 @@ int	mini_atoi(const char *str)
 		i++;
 	}
 	return ((int)result);
+}
+
+long long	get_time(void)
+{
+	struct timeval	tv;
+	long long		time_in_ms;
+
+	gettimeofday(&tv, NULL);
+	time_in_ms = tv.tv_sec * 1000LL + tv.tv_usec / 1000;
+	return (time_in_ms);
 }
