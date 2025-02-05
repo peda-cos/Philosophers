@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:59:28 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/05 01:12:19 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/05 19:52:30 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,7 @@
 
 int	main(int argc, char **argv)
 {
+	(void)argc;
+	(void)argv;
 	return (0);
 }
