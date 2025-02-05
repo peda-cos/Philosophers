@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:58:54 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/05 01:14:28 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/05 01:22:20 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,7 @@ typedef struct s_philo
 	pthread_t	thread;
 	t_data		*data;
 }				t_philo;
+
+int				mini_atoi(const char *str);
 
 #endif
