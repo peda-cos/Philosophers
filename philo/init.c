@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 02:05:31 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 02:09:55 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ int	init_data(t_data *data, int argc, char **argv)
 		pthread_mutex_init(&data->forks[i], NULL);
 		i++;
 	}
+	pthread_mutex_init(&data->print_mutex, NULL);
+	pthread_mutex_init(&data->simulation_mutex, NULL);
 	return (0);
 }
 
