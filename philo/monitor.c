@@ -1,0 +1,64 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/06 02:32:02 by peda-cos          #+#    #+#             */
+/*   Updated: 2025/02/06 02:38:20 by peda-cos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+static int	is_philo_dead(t_philo *philo, t_data *data)
+{
+	long long	current_time;
+
+	current_time = get_time();
+	if (current_time - philo->last_meal > data->time_to_die)
+	{
+		pthread_mutex_lock(&data->simulation_mutex);
+		print_message(philo, "died");
+		data->simulation_end = 1;
+		pthread_mutex_unlock(&data->simulation_mutex);
+		return (1);
+	}
+	return (0);
+}
+
+static int	check_philosophers(t_philo *philos, t_data *data)
+{
+	int	i;
+	int	finished;
+
+	i = 0;
+	finished = 0;
+	while (i < data->number_of_philosophers)
+	{
+		if (is_philo_dead(&philos[i], data))
+			return (1);
+		if (data->must_eat != -1 && philos[i].meals_eaten >= data->must_eat)
+			finished++;
+		i++;
+	}
+	if (data->must_eat != -1 && finished == data->number_of_philosophers)
+	{
+		pthread_mutex_lock(&data->simulation_mutex);
+		data->simulation_end = 1;
+		pthread_mutex_unlock(&data->simulation_mutex);
+		return (1);
+	}
+	return (0);
+}
+
+void	monitor_philos(t_philo *philos, t_data *data)
+{
+	while (1)
+	{
+		if (check_philosophers(philos, data))
+			break ;
+		usleep(1000);
+	}
+}
