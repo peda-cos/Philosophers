@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:58:54 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 01:44:12 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 01:55:09 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,5 +49,7 @@ int					mini_atoi(const char *str);
 long long			get_time(void);
 void				print_message(t_philo *philo, char *msg);
 void				*philo_routine(void *arg);
+int					init_data(t_data *data, int argc, char **argv);
+t_philo				*init_philos(t_data *data);
 
 #endif
