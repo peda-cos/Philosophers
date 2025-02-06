@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:58:54 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 02:07:23 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 02:15:01 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,5 +50,6 @@ void				print_message(t_philo *philo, char *msg);
 void				*philo_routine(void *arg);
 int					init_data(t_data *data, int argc, char **argv);
 t_philo				*init_philos(t_data *data);
+void				cleanup(t_data *data, t_philo *philos);
 
 #endif
