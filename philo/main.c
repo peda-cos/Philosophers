@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:59:28 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 14:57:00 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:45:32 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ static int	validate_args(int argc, char **argv)
 	while (i < argc)
 	{
 		j = 0;
+		if (argv[i][j] == '+')
+			j++;
 		while (argv[i][j])
 		{
 			if (!ft_isdigit(argv[i][j]))

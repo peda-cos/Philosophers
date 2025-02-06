@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 01:19:48 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 01:01:41 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:34:43 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ int	mini_atoi(const char *str)
 
 	i = 0;
 	result = 0;
+	if (str[i] == '+')
+		i++;
 	while (str[i] >= '0' && str[i] <= '9')
 	{
 		result = result * 10 + (str[i] - '0');
