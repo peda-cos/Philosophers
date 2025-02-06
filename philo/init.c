@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 02:09:55 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/06 02:14:29 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,20 @@ t_philo	*init_philos(t_data *data)
 		i++;
 	}
 	return (philos);
+}
+
+void	cleanup(t_data *data, t_philo *philos)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->number_of_philosophers)
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		i++;
+	}
+	free(data->forks);
+	free(philos);
+	pthread_mutex_destroy(&data->print_mutex);
+	pthread_mutex_destroy(&data->simulation_mutex);
 }
