@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 02:14:29 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/07 08:47:15 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ int	init_data(t_data *data, int argc, char **argv)
 	return (0);
 }
 
+#include <pthread.h>
+
 t_philo	*init_philos(t_data *data)
 {
 	t_philo	*philos;
@@ -59,6 +61,7 @@ t_philo	*init_philos(t_data *data)
 		philos[i].left_fork = &data->forks[i];
 		philos[i].right_fork = &data->forks[(i + 1)
 			% data->number_of_philosophers];
+		pthread_mutex_init(&philos[i].meal_mutex, NULL);
 		i++;
 	}
 	return (philos);
