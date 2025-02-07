@@ -6,13 +6,13 @@
 #    By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/05 00:59:07 by peda-cos          #+#    #+#              #
-#    Updated: 2025/02/06 02:34:14 by peda-cos         ###   ########.fr        #
+#    Updated: 2025/02/07 09:10:18 by peda-cos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=thread -g -fno-omit-frame-pointer
 SRCS = main.c utils.c routine.c init.c monitor.c
 OBJS = $(SRCS:.c=.o)
 
