@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 02:32:02 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/07 08:49:38 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/07 08:50:29 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ static int	check_philosophers(t_philo *philos, t_data *data)
 {
 	int	i;
 	int	finished;
+	int	meals;
 
 	i = 0;
 	finished = 0;
@@ -43,8 +44,14 @@ static int	check_philosophers(t_philo *philos, t_data *data)
 	{
 		if (is_philo_dead(&philos[i], data))
 			return (1);
-		if (data->must_eat != -1 && philos[i].meals_eaten >= data->must_eat)
-			finished++;
+		if (data->must_eat != -1)
+		{
+			pthread_mutex_lock(&philos[i].meal_mutex);
+			meals = philos[i].meals_eaten;
+			pthread_mutex_unlock(&philos[i].meal_mutex);
+			if (meals >= data->must_eat)
+				finished++;
+		}
 		i++;
 	}
 	if (data->must_eat != -1 && finished == data->number_of_philosophers)
