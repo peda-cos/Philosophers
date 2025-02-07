@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 02:32:02 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 02:38:20 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/07 08:49:38 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,13 @@
 static int	is_philo_dead(t_philo *philo, t_data *data)
 {
 	long long	current_time;
+	long long	last_meal;
 
 	current_time = get_time();
-	if (current_time - philo->last_meal > data->time_to_die)
+	pthread_mutex_lock(&philo->meal_mutex);
+	last_meal = philo->last_meal;
+	pthread_mutex_unlock(&philo->meal_mutex);
+	if (current_time - last_meal > data->time_to_die)
 	{
 		pthread_mutex_lock(&data->simulation_mutex);
 		print_message(philo, "died");
