@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/07 08:47:15 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/07 08:51:34 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void	cleanup(t_data *data, t_philo *philos)
 	while (i < data->number_of_philosophers)
 	{
 		pthread_mutex_destroy(&data->forks[i]);
+		pthread_mutex_destroy(&philos[i].meal_mutex);
 		i++;
 	}
 	free(data->forks);
