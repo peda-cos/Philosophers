@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 01:19:48 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 11:59:08 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 12:22:31 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,25 @@ long long	get_current_time(void)
 void	print_message(t_philo *philo, char *msg)
 {
 	long long	time;
+	int			sim_end;
+
+	pthread_mutex_lock(&philo->data->end_mutex);
+	sim_end = philo->data->simulation_end;
+	pthread_mutex_unlock(&philo->data->end_mutex);
+	if (sim_end)
+		return ;
+	pthread_mutex_lock(&philo->data->print_mutex);
+	time = get_current_time() - philo->data->start_time;
+	printf("%lld %d %s\n", time, philo->id, msg);
+	pthread_mutex_unlock(&philo->data->print_mutex);
+}
+
+void	print_death_message(t_philo *philo, char *msg)
+{
+	long long	time;
 
 	pthread_mutex_lock(&philo->data->print_mutex);
 	time = get_current_time() - philo->data->start_time;
-	if (!philo->data->simulation_end)
-		printf("%lld %d %s\n", time, philo->id, msg);
+	printf("%lld %d %s\n", time, philo->id, msg);
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }

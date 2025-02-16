@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 11:58:55 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 12:19:03 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	initialize_simulation_data(t_data *data, int argc, char **argv)
 		i++;
 	}
 	pthread_mutex_init(&data->print_mutex, NULL);
-	pthread_mutex_init(&data->simulation_mutex, NULL);
+	pthread_mutex_init(&data->end_mutex, NULL);
 	return (0);
 }
 
@@ -79,5 +79,5 @@ void	cleanup_simulation(t_data *data, t_philo *philos)
 	free(data->forks);
 	free(philos);
 	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->simulation_mutex);
+	pthread_mutex_destroy(&data->end_mutex);
 }

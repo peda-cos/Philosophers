@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 00:58:54 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 11:58:55 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 12:21:14 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ typedef struct s_data
 	long long		start_time;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
-	pthread_mutex_t	simulation_mutex;
+	pthread_mutex_t	end_mutex;
 	int				simulation_end;
 }					t_data;
 
@@ -48,11 +48,18 @@ typedef struct s_philo
 int					mini_atoi(const char *str);
 long long			get_current_time(void);
 void				print_message(t_philo *philo, char *msg);
+void				print_death_message(t_philo *philo, char *msg);
 void				*philosopher_routine(void *arg);
 int					initialize_simulation_data(t_data *data, int argc,
 						char **argv);
 t_philo				*initialize_philosophers(t_data *data);
 void				cleanup_simulation(t_data *data, t_philo *philos);
 void				monitor_philosophers(t_philo *philos, t_data *data);
+
+void				philosopher_take_forks(t_philo *philo);
+void				philosopher_eat(t_philo *philo);
+void				philosopher_release_forks(t_philo *philo);
+void				philosopher_sleep(t_philo *philo);
+void				philosopher_think(t_philo *philo);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 02:32:02 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 12:04:23 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 12:20:03 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ static int	is_philosopher_dead(t_philo *philo, t_data *data)
 	pthread_mutex_unlock(&philo->meal_mutex);
 	if (current_time - last_meal > data->time_to_die)
 	{
-		pthread_mutex_lock(&data->simulation_mutex);
-		print_message(philo, "died");
+		pthread_mutex_lock(&data->end_mutex);
 		data->simulation_end = 1;
-		pthread_mutex_unlock(&data->simulation_mutex);
+		pthread_mutex_unlock(&data->end_mutex);
+		print_death_message(philo, "died");
 		return (1);
 	}
 	return (0);
@@ -36,9 +36,9 @@ static int	end_simulation_if_all_finished(t_data *data, int finished)
 {
 	if (data->must_eat != -1 && finished == data->number_of_philosophers)
 	{
-		pthread_mutex_lock(&data->simulation_mutex);
+		pthread_mutex_lock(&data->end_mutex);
 		data->simulation_end = 1;
-		pthread_mutex_unlock(&data->simulation_mutex);
+		pthread_mutex_unlock(&data->end_mutex);
 		return (1);
 	}
 	return (0);
