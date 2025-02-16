@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:15:33 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 12:32:33 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 16:26:59 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	*philosopher_routine(void *arg)
 		}
 		pthread_mutex_unlock(&philo->data->end_mutex);
 		run_philosopher_actions(philo);
-		usleep(350);
+		usleep(500);
 	}
 	return (NULL);
 }
