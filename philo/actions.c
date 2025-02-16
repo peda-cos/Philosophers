@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 11:48:17 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 12:20:58 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 19:11:19 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,5 @@ void	philosopher_sleep(t_philo *philo)
 void	philosopher_think(t_philo *philo)
 {
 	print_message(philo, "is thinking");
+	usleep(1000);
 }
