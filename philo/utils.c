@@ -6,7 +6,7 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 01:19:48 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/06 15:34:43 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 11:59:08 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	mini_atoi(const char *str)
 	return ((int)result);
 }
 
-long long	get_time(void)
+long long	get_current_time(void)
 {
 	struct timeval	tv;
 	long long		time_in_ms;
@@ -44,10 +44,8 @@ void	print_message(t_philo *philo, char *msg)
 	long long	time;
 
 	pthread_mutex_lock(&philo->data->print_mutex);
-	time = get_time() - philo->data->start_time;
+	time = get_current_time() - philo->data->start_time;
 	if (!philo->data->simulation_end)
-	{
 		printf("%lld %d %s\n", time, philo->id, msg);
-	}
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }

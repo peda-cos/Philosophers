@@ -6,48 +6,23 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:15:33 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/07 08:48:44 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 12:02:23 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+#include "philo_actions.h"
 
-static void	take_forks(t_philo *philo)
+static void	run_philosopher_actions(t_philo *philo)
 {
-	if (philo->id % 2 == 0)
-	{
-		pthread_mutex_lock(philo->left_fork);
-		print_message(philo, "has taken a fork");
-		pthread_mutex_lock(philo->right_fork);
-		print_message(philo, "has taken a fork");
-	}
-	else
-	{
-		pthread_mutex_lock(philo->right_fork);
-		print_message(philo, "has taken a fork");
-		pthread_mutex_lock(philo->left_fork);
-		print_message(philo, "has taken a fork");
-	}
+	philosopher_take_forks(philo);
+	philosopher_eat(philo);
+	philosopher_sleep(philo);
+	philosopher_release_forks(philo);
+	philosopher_think(philo);
 }
 
-static void	eat_sleep_think(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->meal_mutex);
-	philo->last_meal = get_time();
-	pthread_mutex_unlock(&philo->meal_mutex);
-	print_message(philo, "is eating");
-	usleep(philo->data->time_to_eat * 1000);
-	pthread_mutex_lock(&philo->meal_mutex);
-	philo->meals_eaten++;
-	pthread_mutex_unlock(&philo->meal_mutex);
-	pthread_mutex_unlock(philo->left_fork);
-	pthread_mutex_unlock(philo->right_fork);
-	print_message(philo, "is sleeping");
-	usleep(philo->data->time_to_sleep * 1000);
-	print_message(philo, "is thinking");
-}
-
-void	*philo_routine(void *arg)
+void	*philosopher_routine(void *arg)
 {
 	t_philo	*philo;
 
@@ -69,8 +44,7 @@ void	*philo_routine(void *arg)
 			break ;
 		}
 		pthread_mutex_unlock(&philo->data->simulation_mutex);
-		take_forks(philo);
-		eat_sleep_think(philo);
+		run_philosopher_actions(philo);
 		usleep(100);
 	}
 	return (NULL);

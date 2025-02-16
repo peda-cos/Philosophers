@@ -6,13 +6,13 @@
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/07 08:51:34 by peda-cos         ###   ########.fr       */
+/*   Updated: 2025/02/16 11:58:55 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	init_data(t_data *data, int argc, char **argv)
+int	initialize_simulation_data(t_data *data, int argc, char **argv)
 {
 	int	i;
 
@@ -25,7 +25,7 @@ int	init_data(t_data *data, int argc, char **argv)
 	else
 		data->must_eat = -1;
 	data->simulation_end = 0;
-	data->start_time = get_time();
+	data->start_time = get_current_time();
 	data->forks = malloc(sizeof(pthread_mutex_t)
 			* data->number_of_philosophers);
 	if (!data->forks)
@@ -41,9 +41,7 @@ int	init_data(t_data *data, int argc, char **argv)
 	return (0);
 }
 
-#include <pthread.h>
-
-t_philo	*init_philos(t_data *data)
+t_philo	*initialize_philosophers(t_data *data)
 {
 	t_philo	*philos;
 	int		i;
@@ -67,7 +65,7 @@ t_philo	*init_philos(t_data *data)
 	return (philos);
 }
 
-void	cleanup(t_data *data, t_philo *philos)
+void	cleanup_simulation(t_data *data, t_philo *philos)
 {
 	int	i;
 
