@@ -6,13 +6,13 @@
 #    By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/05 00:59:07 by peda-cos          #+#    #+#              #
-#    Updated: 2025/02/16 16:37:05 by peda-cos         ###   ########.fr        #
+#    Updated: 2025/02/16 19:23:25 by peda-cos         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -pthread -O2 -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -pthread -O2
 SRCS = main.c utils.c routine.c init.c monitor.c actions.c
 OBJS = $(SRCS:.c=.o)
 
