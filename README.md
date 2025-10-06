@@ -52,12 +52,12 @@ Each philosopher is represented by a thread that:
 ### Core Components
 
 ```
-┌─────────────────────────────────────────┐
+┌──────────────────────────────────────────┐
 │           Main Program                   │
 │  - Argument validation                   │
 │  - Simulation initialization             │
 │  - Thread creation & management          │
-└─────────────────────────────────────────┘
+└──────────────────────────────────────────┘
                     │
         ┌───────────┴───────────┐
         │                       │
