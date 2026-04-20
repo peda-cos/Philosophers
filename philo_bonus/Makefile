@@ -1,16 +1,16 @@
-NAME = philo
+NAME = philo_bonus
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
-SRCS = main.c parse.c init.c routine.c actions.c monitor.c time.c utils.c cleanup.c
+SRCS = main_bonus.c parse_bonus.c init_bonus.c routine_bonus.c actions_bonus.c monitor_bonus.c time_bonus.c utils_bonus.c cleanup_bonus.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
-	@echo "philo"
+	@echo "philo_bonus"
 
-%.o: %.c philo.h
+%.o: %.c philo_bonus.h
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<"
 

@@ -12,25 +12,44 @@
 
 #include "philo.h"
 
-int	is_stopped(t_table *table)
+static void	destroy_meal_locks(t_table *t)
 {
-	int	stopped;
+	int	i;
 
-	pthread_mutex_lock(&table->stop_lock);
-	stopped = table->stopped;
-	pthread_mutex_unlock(&table->stop_lock);
-	return (stopped);
+	if (!t->philos)
+		return ;
+	i = 0;
+	while (i < t->meal_locks_inited)
+	{
+		pthread_mutex_destroy(&t->philos[i].meal_lock);
+		i++;
+	}
 }
 
-void	print_state(t_philo *philo, char *state)
+static void	destroy_forks(t_table *t)
 {
-	long	ts;
+	int	i;
 
-	pthread_mutex_lock(&philo->table->print_lock);
-	if (!is_stopped(philo->table))
+	if (!t->forks)
+		return ;
+	i = 0;
+	while (i < t->forks_inited)
 	{
-		ts = get_time_ms() - philo->table->start_ms;
-		printf("%ld %d %s\n", ts, philo->id, state);
+		pthread_mutex_destroy(&t->forks[i]);
+		i++;
 	}
-	pthread_mutex_unlock(&philo->table->print_lock);
+}
+
+void	cleanup_table(t_table *t)
+{
+	destroy_meal_locks(t);
+	destroy_forks(t);
+	if (t->print_lock_inited)
+		pthread_mutex_destroy(&t->print_lock);
+	if (t->stop_lock_inited)
+		pthread_mutex_destroy(&t->stop_lock);
+	free(t->forks);
+	free(t->philos);
+	t->forks = NULL;
+	t->philos = NULL;
 }

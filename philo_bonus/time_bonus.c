@@ -10,27 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-int	is_stopped(t_table *table)
+long	get_time_ms(void)
 {
-	int	stopped;
+	struct timeval	tv;
 
-	pthread_mutex_lock(&table->stop_lock);
-	stopped = table->stopped;
-	pthread_mutex_unlock(&table->stop_lock);
-	return (stopped);
+	gettimeofday(&tv, NULL);
+	return ((long)tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-void	print_state(t_philo *philo, char *state)
+void	ft_sleep(long ms, t_table *table)
 {
-	long	ts;
+	long	end;
 
-	pthread_mutex_lock(&philo->table->print_lock);
-	if (!is_stopped(philo->table))
-	{
-		ts = get_time_ms() - philo->table->start_ms;
-		printf("%ld %d %s\n", ts, philo->id, state);
-	}
-	pthread_mutex_unlock(&philo->table->print_lock);
+	(void)table;
+	end = get_time_ms() + ms;
+	while (get_time_ms() < end)
+		usleep(SLEEP_POLL_US);
 }

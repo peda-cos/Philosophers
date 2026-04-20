@@ -10,27 +10,34 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-int	is_stopped(t_table *table)
+static void	solo_philo(t_philo *philo)
 {
-	int	stopped;
-
-	pthread_mutex_lock(&table->stop_lock);
-	stopped = table->stopped;
-	pthread_mutex_unlock(&table->stop_lock);
-	return (stopped);
+	sem_wait(philo->forks);
+	print_state(philo, "has taken a fork");
+	ft_sleep(philo->table->t_die + 1, philo->table);
+	exit(1);
 }
 
-void	print_state(t_philo *philo, char *state)
+void	philo_routine(t_philo *philo)
 {
-	long	ts;
+	t_table		*t;
+	pthread_t	mon;
 
-	pthread_mutex_lock(&philo->table->print_lock);
-	if (!is_stopped(philo->table))
+	t = philo->table;
+	sem_wait(philo->meal_sem);
+	philo->last_meal_ms = get_time_ms();
+	sem_post(philo->meal_sem);
+	pthread_create(&mon, NULL, monitor_thread, philo);
+	pthread_detach(mon);
+	if (t->n == 1)
+		solo_philo(philo);
+	while (1)
 	{
-		ts = get_time_ms() - philo->table->start_ms;
-		printf("%ld %d %s\n", ts, philo->id, state);
+		take_forks(philo);
+		eat(philo);
+		philo_sleep(philo);
+		think(philo);
 	}
-	pthread_mutex_unlock(&philo->table->print_lock);
 }

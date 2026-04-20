@@ -10,34 +10,50 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-int	take_forks(t_philo *philo, pthread_mutex_t *first,
-		pthread_mutex_t *second)
+static int	next_in_chain(int id, int n)
 {
-	pthread_mutex_lock(first);
-	print_state(philo, "has taken a fork");
-	if (is_stopped(philo->table))
+	int	next;
+
+	next = id + 2;
+	if (next > n)
 	{
-		pthread_mutex_unlock(first);
-		return (0);
+		if (id % 2 == 0)
+			next = 2;
+		else
+			next = 1;
 	}
-	pthread_mutex_lock(second);
+	return (next);
+}
+
+void	take_forks(t_philo *philo)
+{
+	sem_wait(philo->turn_sem);
+	sem_wait(philo->forks);
 	print_state(philo, "has taken a fork");
-	return (1);
+	sem_wait(philo->forks);
+	print_state(philo, "has taken a fork");
 }
 
 void	eat(t_philo *philo)
 {
 	t_table	*t;
+	int		next;
 
 	t = philo->table;
 	print_state(philo, "is eating");
-	pthread_mutex_lock(&philo->meal_lock);
+	sem_wait(philo->meal_sem);
 	philo->last_meal_ms = get_time_ms();
-	philo->meal_count++;
-	pthread_mutex_unlock(&philo->meal_lock);
+	sem_post(philo->meal_sem);
 	ft_sleep(t->t_eat, t);
+	sem_post(philo->forks);
+	sem_post(philo->forks);
+	next = next_in_chain(philo->id, t->n);
+	sem_post(t->philos[next - 1].turn_sem);
+	sem_wait(philo->meal_sem);
+	philo->meal_count++;
+	sem_post(philo->meal_sem);
 }
 
 void	philo_sleep(t_philo *philo)
@@ -48,14 +64,5 @@ void	philo_sleep(t_philo *philo)
 
 void	think(t_philo *philo)
 {
-	long	think_ms;
-
 	print_state(philo, "is thinking");
-	if (philo->table->n % 2 == 1)
-	{
-		think_ms = philo->table->t_eat * 2 - philo->table->t_sleep;
-		if (think_ms < 1)
-			think_ms = 1;
-		ft_sleep(think_ms, philo->table);
-	}
 }

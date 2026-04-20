@@ -10,27 +10,42 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-int	is_stopped(t_table *table)
+static int	fork_children(t_table *t)
 {
-	int	stopped;
+	int		i;
+	pid_t	pid;
 
-	pthread_mutex_lock(&table->stop_lock);
-	stopped = table->stopped;
-	pthread_mutex_unlock(&table->stop_lock);
-	return (stopped);
+	i = 0;
+	while (i < t->n)
+	{
+		pid = fork();
+		if (pid < 0)
+			return (-1);
+		if (pid == 0)
+		{
+			philo_routine(&t->philos[i]);
+			exit(0);
+		}
+		t->philos[i].pid = pid;
+		i++;
+	}
+	return (0);
 }
 
-void	print_state(t_philo *philo, char *state)
+int	main(int argc, char **argv)
 {
-	long	ts;
+	t_table	table;
 
-	pthread_mutex_lock(&philo->table->print_lock);
-	if (!is_stopped(philo->table))
-	{
-		ts = get_time_ms() - philo->table->start_ms;
-		printf("%ld %d %s\n", ts, philo->id, state);
-	}
-	pthread_mutex_unlock(&philo->table->print_lock);
+	memset(&table, 0, sizeof(t_table));
+	if (parse_args(argc, argv, &table))
+		return (1);
+	if (init_table(&table))
+		return (1);
+	if (fork_children(&table))
+		return (1);
+	monitor_routine(&table);
+	cleanup_table(&table);
+	return (0);
 }

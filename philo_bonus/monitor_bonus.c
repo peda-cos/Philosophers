@@ -10,27 +10,64 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-int	is_stopped(t_table *table)
+void	*monitor_thread(void *arg)
 {
-	int	stopped;
+	t_philo	*philo;
+	t_table	*t;
+	long	last;
+	int		count;
 
-	pthread_mutex_lock(&table->stop_lock);
-	stopped = table->stopped;
-	pthread_mutex_unlock(&table->stop_lock);
-	return (stopped);
+	philo = (t_philo *)arg;
+	t = philo->table;
+	while (1)
+	{
+		usleep(MONITOR_POLL_US);
+		sem_wait(philo->meal_sem);
+		last = philo->last_meal_ms;
+		count = philo->meal_count;
+		sem_post(philo->meal_sem);
+		if (get_time_ms() - last > t->t_die)
+		{
+			print_state(philo, "died");
+			exit(1);
+		}
+		if (t->meals_required != -1 && count >= t->meals_required)
+			exit(0);
+	}
+	return (NULL);
 }
 
-void	print_state(t_philo *philo, char *state)
+static void	kill_all(t_table *t)
 {
-	long	ts;
+	int	i;
 
-	pthread_mutex_lock(&philo->table->print_lock);
-	if (!is_stopped(philo->table))
+	i = 0;
+	while (i < t->n)
 	{
-		ts = get_time_ms() - philo->table->start_ms;
-		printf("%ld %d %s\n", ts, philo->id, state);
+		kill(t->philos[i].pid, SIGKILL);
+		i++;
 	}
-	pthread_mutex_unlock(&philo->table->print_lock);
+}
+
+void	monitor_routine(t_table *table)
+{
+	int		status;
+	int		i;
+
+	i = 0;
+	while (i < table->n)
+	{
+		if (waitpid(-1, &status, 0) == -1)
+			break ;
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+		{
+			kill_all(table);
+			break ;
+		}
+		i++;
+	}
+	while (waitpid(-1, &status, 0) > 0)
+		;
 }

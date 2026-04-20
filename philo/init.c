@@ -1,83 +1,83 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/06 01:30:01 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 12:19:03 by peda-cos         ###   ########.fr       */
+/*   Created: 2026/04/20 00:00:00 by peda-cos          #+#    #+#             */
+/*   Updated: 2026/04/20 00:00:00 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	initialize_simulation_data(t_data *data, int argc, char **argv)
+static int	init_forks(t_table *t)
 {
 	int	i;
 
-	data->number_of_philosophers = mini_atoi(argv[1]);
-	data->time_to_die = mini_atoi(argv[2]);
-	data->time_to_eat = mini_atoi(argv[3]);
-	data->time_to_sleep = mini_atoi(argv[4]);
-	if (argc == 6)
-		data->must_eat = mini_atoi(argv[5]);
-	else
-		data->must_eat = -1;
-	data->simulation_end = 0;
-	data->start_time = get_current_time();
-	data->forks = malloc(sizeof(pthread_mutex_t)
-			* data->number_of_philosophers);
-	if (!data->forks)
-		return (1);
+	t->forks = malloc(sizeof(pthread_mutex_t) * t->n);
+	if (!t->forks)
+		return (-1);
 	i = 0;
-	while (i < data->number_of_philosophers)
+	while (i < t->n)
 	{
-		pthread_mutex_init(&data->forks[i], NULL);
+		if (pthread_mutex_init(&t->forks[i], NULL) != 0)
+			return (-1);
+		t->forks_inited++;
 		i++;
 	}
-	pthread_mutex_init(&data->print_mutex, NULL);
-	pthread_mutex_init(&data->end_mutex, NULL);
 	return (0);
 }
 
-t_philo	*initialize_philosophers(t_data *data)
+static int	init_philo(t_philo *p, int id, long start_ms, t_table *t)
 {
-	t_philo	*philos;
-	int		i;
-
-	philos = malloc(sizeof(t_philo) * data->number_of_philosophers);
-	if (!philos)
-		return (NULL);
-	i = 0;
-	while (i < data->number_of_philosophers)
-	{
-		philos[i].id = i + 1;
-		philos[i].last_meal = data->start_time;
-		philos[i].meals_eaten = 0;
-		philos[i].data = data;
-		philos[i].left_fork = &data->forks[i];
-		philos[i].right_fork = &data->forks[(i + 1)
-			% data->number_of_philosophers];
-		pthread_mutex_init(&philos[i].meal_mutex, NULL);
-		i++;
-	}
-	return (philos);
+	p->id = id;
+	p->meal_count = 0;
+	p->last_meal_ms = start_ms;
+	p->table = t;
+	p->left_fork = &t->forks[id - 1];
+	p->right_fork = &t->forks[id % t->n];
+	if (pthread_mutex_init(&p->meal_lock, NULL) != 0)
+		return (-1);
+	return (0);
 }
 
-void	cleanup_simulation(t_data *data, t_philo *philos)
+static int	init_philos(t_table *t)
 {
 	int	i;
 
+	t->philos = malloc(sizeof(t_philo) * t->n);
+	if (!t->philos)
+		return (-1);
 	i = 0;
-	while (i < data->number_of_philosophers)
+	while (i < t->n)
 	{
-		pthread_mutex_destroy(&data->forks[i]);
-		pthread_mutex_destroy(&philos[i].meal_mutex);
+		if (init_philo(&t->philos[i], i + 1, t->start_ms, t) != 0)
+			return (-1);
+		t->meal_locks_inited++;
 		i++;
 	}
-	free(data->forks);
-	free(philos);
-	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->end_mutex);
+	return (0);
+}
+
+int	init_table(t_table *t)
+{
+	t->start_ms = get_time_ms();
+	t->stopped = 0;
+	t->forks_inited = 0;
+	t->meal_locks_inited = 0;
+	t->stop_lock_inited = 0;
+	t->print_lock_inited = 0;
+	if (init_forks(t) != 0)
+		return (-1);
+	if (init_philos(t) != 0)
+		return (-1);
+	if (pthread_mutex_init(&t->stop_lock, NULL) != 0)
+		return (-1);
+	t->stop_lock_inited = 1;
+	if (pthread_mutex_init(&t->print_lock, NULL) != 0)
+		return (-1);
+	t->print_lock_inited = 1;
+	return (0);
 }

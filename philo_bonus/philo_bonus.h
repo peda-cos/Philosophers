@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
+#ifndef PHILO_BONUS_H
+# define PHILO_BONUS_H
 
 # include <pthread.h>
 # include <stdio.h>
@@ -19,72 +19,70 @@
 # include <unistd.h>
 # include <sys/time.h>
 # include <string.h>
+# include <semaphore.h>
+# include <fcntl.h>
+# include <sys/stat.h>
+# include <signal.h>
+# include <sys/wait.h>
 
 # define MONITOR_POLL_US 500
-# define SLEEP_POLL_US 100
+# define SLEEP_POLL_US 500
 
 typedef struct s_table	t_table;
 
 typedef struct s_philo
 {
-	int				id;
-	int				meal_count;
-	long			last_meal_ms;
-	pthread_t		thread;
-	pthread_mutex_t	meal_lock;
-	pthread_mutex_t	*left_fork;
-	pthread_mutex_t	*right_fork;
-	t_table			*table;
+	int			id;
+	int			meal_count;
+	long		last_meal_ms;
+	pid_t		pid;
+	sem_t		*meal_sem;
+	sem_t		*forks;
+	sem_t		*turn_sem;
+	t_table		*table;
 }	t_philo;
 
 typedef struct s_table
 {
-	int				n;
-	long			t_die;
-	long			t_eat;
-	long			t_sleep;
-	int				meals_required;
-	long			start_ms;
-	int				stopped;
-	int				forks_inited;
-	int				meal_locks_inited;
-	int				stop_lock_inited;
-	int				print_lock_inited;
-	pthread_mutex_t	stop_lock;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t	*forks;
-	t_philo			*philos;
-	pthread_t		monitor;
+	int			n;
+	long		t_die;
+	long		t_eat;
+	long		t_sleep;
+	int			meals_required;
+	long		start_ms;
+	sem_t		*print_sem;
+	sem_t		*forks;
+	t_philo		*philos;
 }	t_table;
 
-/* parse.c */
+/* parse_bonus.c */
 int		parse_args(int argc, char **argv, t_table *table);
 
-/* init.c */
+/* init_bonus.c */
 int		init_table(t_table *table);
 
-/* cleanup.c */
+/* cleanup_bonus.c */
 void	cleanup_table(t_table *table);
 
-/* time.c */
+/* time_bonus.c */
 long	get_time_ms(void);
 void	ft_sleep(long ms, t_table *table);
 
-/* utils.c */
-int		is_stopped(t_table *table);
+/* utils_bonus.c */
 void	print_state(t_philo *philo, char *state);
+int		build_sem_name(char *prefix, int id, char *out, int cap);
 
-/* actions.c */
-int		take_forks(t_philo *philo, pthread_mutex_t *first,
-			pthread_mutex_t *second);
+/* actions_bonus.c */
+void	take_forks(t_philo *philo);
 void	eat(t_philo *philo);
 void	philo_sleep(t_philo *philo);
 void	think(t_philo *philo);
 
-/* routine.c */
-void	*philo_routine(void *arg);
+/* routine_bonus.c */
+void	philo_routine(t_philo *philo);
 
-/* monitor.c */
-void	*monitor_routine(void *arg);
+/* monitor_bonus.c */
+void	*monitor_thread(void *arg);
+void	monitor_routine(t_table *table);
 
 #endif

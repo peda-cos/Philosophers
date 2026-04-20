@@ -1,50 +1,80 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   routine.c                                          :+:      :+:    :+:   */
+/*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/06 01:15:33 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 17:53:34 by peda-cos         ###   ########.fr       */
+/*   Created: 2026/04/20 00:00:00 by peda-cos          #+#    #+#             */
+/*   Updated: 2026/04/20 00:00:00 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	run_philosopher_actions(t_philo *philo)
+static long	get_delay(t_table *t)
 {
-	philosopher_take_forks(philo);
-	philosopher_eat(philo);
-	philosopher_release_forks(philo);
-	philosopher_sleep(philo);
-	philosopher_think(philo);
+	long	delay;
+
+	delay = t->t_eat - 10;
+	if (t->t_eat / 2 < delay)
+		delay = t->t_eat / 2;
+	if (delay < 1)
+		delay = 1;
+	return (delay);
 }
 
-void	*philosopher_routine(void *arg)
+static void	one_philo(t_philo *philo)
+{
+	pthread_mutex_lock(philo->left_fork);
+	print_state(philo, "has taken a fork");
+	ft_sleep(philo->table->t_die + 1, philo->table);
+	pthread_mutex_unlock(philo->left_fork);
+}
+
+static void	run_cycle(t_philo *philo)
+{
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
+
+	if (philo->id % 2 == 0)
+	{
+		first = philo->right_fork;
+		second = philo->left_fork;
+	}
+	else
+	{
+		first = philo->left_fork;
+		second = philo->right_fork;
+	}
+	if (!take_forks(philo, first, second))
+		return ;
+	eat(philo);
+	pthread_mutex_unlock(second);
+	pthread_mutex_unlock(first);
+	if (is_stopped(philo->table))
+		return ;
+	philo_sleep(philo);
+	if (is_stopped(philo->table))
+		return ;
+	think(philo);
+}
+
+void	*philo_routine(void *arg)
 {
 	t_philo	*philo;
+	t_table	*t;
 
 	philo = (t_philo *)arg;
-	if (philo->data->number_of_philosophers == 1)
+	t = philo->table;
+	if (t->n == 1)
 	{
-		pthread_mutex_lock(philo->left_fork);
-		print_message(philo, "has taken a fork");
-		usleep(philo->data->time_to_die * 1000);
-		pthread_mutex_unlock(philo->left_fork);
+		one_philo(philo);
 		return (NULL);
 	}
-	while (1)
-	{
-		pthread_mutex_lock(&philo->data->end_mutex);
-		if (philo->data->simulation_end)
-		{
-			pthread_mutex_unlock(&philo->data->end_mutex);
-			break ;
-		}
-		pthread_mutex_unlock(&philo->data->end_mutex);
-		run_philosopher_actions(philo);
-		usleep(1000);
-	}
+	if (philo->id % 2 == 0)
+		ft_sleep(get_delay(t), t);
+	while (!is_stopped(t))
+		run_cycle(philo);
 	return (NULL);
 }

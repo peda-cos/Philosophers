@@ -10,56 +10,59 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
-static int	start_threads(t_table *t)
+static void	close_meal_sems(t_table *table)
 {
-	int	i;
+	char	name[32];
+	int		i;
 
 	i = 0;
-	while (i < t->n)
+	while (i < table->n)
 	{
-		if (pthread_create(&t->philos[i].thread, NULL,
-				philo_routine, &t->philos[i]) != 0)
-			return (-1);
-		i++;
-	}
-	if (pthread_create(&t->monitor, NULL, monitor_routine, t) != 0)
-		return (-1);
-	return (0);
-}
-
-static void	join_threads(t_table *t)
-{
-	int	i;
-
-	pthread_join(t->monitor, NULL);
-	i = 0;
-	while (i < t->n)
-	{
-		pthread_join(t->philos[i].thread, NULL);
+		if (table->philos[i].meal_sem)
+			sem_close(table->philos[i].meal_sem);
+		build_sem_name("/philo_meal_", table->philos[i].id, name, sizeof(name));
+		sem_unlink(name);
 		i++;
 	}
 }
 
-int	main(int argc, char **argv)
+static void	close_turn_sems(t_table *table)
 {
-	t_table	table;
+	char	name[32];
+	int		i;
 
-	memset(&table, 0, sizeof(t_table));
-	if (parse_args(argc, argv, &table) == -1)
-		return (1);
-	if (init_table(&table) == -1)
+	i = 0;
+	while (i < table->n)
 	{
-		cleanup_table(&table);
-		return (1);
+		if (table->philos[i].turn_sem)
+			sem_close(table->philos[i].turn_sem);
+		build_sem_name("/philo_turn_", table->philos[i].id, name, sizeof(name));
+		sem_unlink(name);
+		i++;
 	}
-	if (start_threads(&table) == -1)
+}
+
+void	cleanup_table(t_table *table)
+{
+	if (!table)
+		return ;
+	if (table->forks)
 	{
-		cleanup_table(&table);
-		return (1);
+		sem_close(table->forks);
+		sem_unlink("/philo_forks");
 	}
-	join_threads(&table);
-	cleanup_table(&table);
-	return (0);
+	if (table->print_sem)
+	{
+		sem_close(table->print_sem);
+		sem_unlink("/philo_print");
+	}
+	if (table->philos)
+	{
+		close_meal_sems(table);
+		close_turn_sems(table);
+		free(table->philos);
+		table->philos = NULL;
+	}
 }

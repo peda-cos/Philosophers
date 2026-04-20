@@ -1,82 +1,79 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   monitor.c                                          :+:      :+:    :+:   */
+/*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: peda-cos <peda-cos@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/06 02:32:02 by peda-cos          #+#    #+#             */
-/*   Updated: 2025/02/16 12:20:03 by peda-cos         ###   ########.fr       */
+/*   Created: 2026/04/20 00:00:00 by peda-cos          #+#    #+#             */
+/*   Updated: 2026/04/20 00:00:00 by peda-cos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	is_philosopher_dead(t_philo *philo, t_data *data)
+static void	signal_stop(t_table *t)
 {
-	long long	current_time;
-	long long	last_meal;
-
-	current_time = get_current_time();
-	pthread_mutex_lock(&philo->meal_mutex);
-	last_meal = philo->last_meal;
-	pthread_mutex_unlock(&philo->meal_mutex);
-	if (current_time - last_meal > data->time_to_die)
-	{
-		pthread_mutex_lock(&data->end_mutex);
-		data->simulation_end = 1;
-		pthread_mutex_unlock(&data->end_mutex);
-		print_death_message(philo, "died");
-		return (1);
-	}
-	return (0);
+	pthread_mutex_lock(&t->stop_lock);
+	t->stopped = 1;
+	pthread_mutex_unlock(&t->stop_lock);
 }
 
-static int	end_simulation_if_all_finished(t_data *data, int finished)
+static void	announce_death(t_table *t, int id)
 {
-	if (data->must_eat != -1 && finished == data->number_of_philosophers)
-	{
-		pthread_mutex_lock(&data->end_mutex);
-		data->simulation_end = 1;
-		pthread_mutex_unlock(&data->end_mutex);
-		return (1);
-	}
-	return (0);
+	long	ts;
+
+	pthread_mutex_lock(&t->print_lock);
+	pthread_mutex_lock(&t->stop_lock);
+	t->stopped = 1;
+	pthread_mutex_unlock(&t->stop_lock);
+	ts = get_time_ms() - t->start_ms;
+	printf("%ld %d died\n", ts, id);
+	pthread_mutex_unlock(&t->print_lock);
 }
 
-static int	check_all_philosophers(t_philo *philos, t_data *data)
+static int	all_full(t_table *t)
 {
 	int	i;
-	int	finished;
-	int	meals;
+	int	count;
 
+	if (t->meals_required == -1)
+		return (0);
 	i = 0;
-	finished = 0;
-	while (i < data->number_of_philosophers)
+	while (i < t->n)
 	{
-		if (is_philosopher_dead(&philos[i], data))
-			return (1);
-		if (data->must_eat != -1)
-		{
-			pthread_mutex_lock(&philos[i].meal_mutex);
-			meals = philos[i].meals_eaten;
-			pthread_mutex_unlock(&philos[i].meal_mutex);
-			if (meals >= data->must_eat)
-				finished++;
-		}
+		pthread_mutex_lock(&t->philos[i].meal_lock);
+		count = t->philos[i].meal_count;
+		pthread_mutex_unlock(&t->philos[i].meal_lock);
+		if (count < t->meals_required)
+			return (0);
 		i++;
 	}
-	if (end_simulation_if_all_finished(data, finished))
-		return (1);
-	return (0);
+	return (1);
 }
 
-void	monitor_philosophers(t_philo *philos, t_data *data)
+void	*monitor_routine(void *arg)
 {
-	while (1)
+	t_table	*t;
+	int		i;
+	long	last;
+
+	t = arg;
+	while (!is_stopped(t))
 	{
-		if (check_all_philosophers(philos, data))
-			break ;
-		usleep(1000);
+		i = 0;
+		while (i < t->n)
+		{
+			pthread_mutex_lock(&t->philos[i].meal_lock);
+			last = t->philos[i].last_meal_ms;
+			pthread_mutex_unlock(&t->philos[i].meal_lock);
+			if (get_time_ms() - last > t->t_die)
+				return (announce_death(t, t->philos[i].id), NULL);
+			i++;
+		}
+		if (all_full(t))
+			return (signal_stop(t), NULL);
+		usleep(MONITOR_POLL_US);
 	}
+	return (NULL);
 }
